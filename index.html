@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clinic Patient Queue</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Clinic Patient Queue</h1>
+        
+        <!-- Patient Form -->
+        <div class="form-section">
+            <h2>Add Patient</h2>
+            <form id="patientForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+
+                <label for="symptoms">Symptoms:</label>
+                <input type="text" id="symptoms" required>
+
+                <label for="emergency">Emergency:</label>
+                <input type="checkbox" id="emergency">
+
+                <button type="button" onclick="addPatient()">Add Patient</button>
+            </form>
+        </div>
+
+        <!-- Patient Queue List -->
+        <div class="queue-section">
+            <h2>Waiting Patients</h2>
+            <ul id="patientQueue"></ul>
+        </div>
+
+        <!-- Button to Serve Next Patient -->
+        <button class="serve-btn" onclick="serveNextPatient()">Serve Next Patient</button>
+    </div>
+
+    <script>
+        // Function to add patient to the queue
+        function addPatient() {
+            const name = document.getElementById("name").value;
+            const symptoms = document.getElementById("symptoms").value;
+            const emergency = document.getElementById("emergency").checked;
+
+            fetch("PatientQueueServlet", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `action=add&name=${name}&symptoms=${symptoms}&emergency=${emergency}`
+            }).then(() => loadQueue());
+        }
+
+        // Function to serve the next patient
+        function serveNextPatient() {
+            fetch("PatientQueueServlet", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "action=serve"
+            }).then(() => loadQueue());
+        }
+
+        // Function to load and display the queue
+        function loadQueue() {
+            fetch("PatientQueueServlet")
+                .then(response => response.json())
+                .then(data => {
+                    const patientQueue = document.getElementById("patientQueue");
+                    patientQueue.innerHTML = ""; // Clear existing queue
+                    data.forEach(patient => {
+                        const li = document.createElement("li");
+                        li.textContent = `${patient.name} - ${patient.symptoms} ${patient.isEmergency ? "(Emergency)" : ""}`;
+                        patientQueue.appendChild(li);
+                    });
+                });
+        }
+
+        // Initial load
+        loadQueue();
+    </script>
+</body>
+</html>
