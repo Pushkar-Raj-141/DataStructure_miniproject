@@ -12,7 +12,7 @@ import org.json.JSONObject;
 public class PatientQueueServlet extends HttpServlet {
     private Queue<Patient> patientQueue = new LinkedList<>();
 
-    // Inner class to represent a patient
+    // Inner class to represent a patient 
     private class Patient {
         String name;
         String symptoms;
